@@ -28,7 +28,7 @@ def recv_msg(sock):
             break
 
 if __name__ == "__main__":
-    host = '127.0.0.1'  # Nombre del server
+    host = '34.51.74.75'  # Nombre del server
     port = 65535
     BUFFER_SIZE = 1024  # Usamos un número pequeño para tener una respuesta rápida
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

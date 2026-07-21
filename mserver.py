@@ -30,7 +30,7 @@ def remove(connection):
         list_of_clients.remove(connection)
 
 if __name__ == "__main__":
-    host = 'localhost'  # Esta función nos da el nombre de la máquina
+    host = '0.0.0.0'  # Esta función nos da el nombre de la máquina
     port = 65535
     BUFFER_SIZE = 1024  # Usamos un número pequeño para tener una respuesta rápida
     # Creamos un socket TCP
