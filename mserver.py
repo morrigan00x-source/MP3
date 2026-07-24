@@ -40,11 +40,8 @@ def clientthread(conn, addr):
             break
 #manda el emnsaje a toda la red conectada
 def msgToConsola(message):
-
-    print("apodos registrados: ")
-    for client in apodos_clients:
-        print(client, sep=" ")
     connection = apodos_clients["console"] 
+    
     for clients in list_of_clients:
         if clients == connection:
             try:
