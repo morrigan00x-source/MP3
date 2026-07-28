@@ -19,7 +19,7 @@ def clientthread(conn, addr):
                 partesMsg = message.split(" ")
                 print(f"<{addr[0]}> {message}")
                 
-                if(message.startswith("<descargar>")):
+                if(message.startswith("<mouseState>")):
                     None
                 elif(message.startswith("<last>")):
                     msgToConsola(message)
