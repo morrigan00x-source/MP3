@@ -1,7 +1,8 @@
 import threading		
-import socket
-import simplecontroller as sc
 import time
+import socket
+import keyboard
+
 
 class arduinoContrl():
     #Trabajan con logica negativa (sin pulsar = 1, pulsando = 0)
@@ -22,59 +23,65 @@ class arduinoContrl():
         self.server.connect("34.51.74.75", 80)#IP my server
         self.server.send(bytes("<apodo> arduino", 'utf-8'))
         
-        self.arduino = sc.Board("COM10") # puerto ejemplo valor default 115200
-
-        self.arduino.pinMode(self.IN1, sc.INPUT)
-        self.arduino.pinMode(self.IN2, sc.INPUT)
-        self.arduino.pinMode(self.IN3, sc.INPUT)
-
-        self.arduino.pinMode(self.PWM, sc.INPUT)
-        self.arduino.pinMode(self.PWM_X, sc.INPUT)
-        self.arduino.pinMode(self.PWM_Y, sc.INPUT)
-
         self.bLectura = True
 
     def lectura(self):
+        """
+        lectura:
+        teclas testeo:
+                        f = volSound += 0.1
+                        a = btnAnterior
+                        s = btnPausaPlay
+                        d = btnNext
+
+                        u = arriba mouse
+                        j = abajo mouse
+                        k = derecha mouse
+                        h = izquierda mouse 
+        """
         while self.bLectura:
             #revisar botones
-            for i in self.varControlDigital:
-                if(not self.arduino.digitalRead(i)):
-                    self.envDigitalToS(self.dicVal[i])
+            if(keyboard.is_pressed('a')):
+                self.envDigitalToS(0)
+            elif(keyboard.is_pressed('s')):
+                self.envDigitalToS(1)
+            elif(keyboard.is_pressed('d')):
+                self.envDigitalToS(2)
 
             #revisar pot volumen 
-            volSound = self.arduino.analogRead(self.PW)
-            self.CacheVolSound = volSound
-            if(self.CacheVolSound != volSound):
-                self.envVolSound(volSound)
+            #volSound = self.arduino.analogRead(self.PW)
+            if(keyboard.is_pressed('f')):
+                self.volSound = self.volSound + 0.1
+
+
+            self.envVolSound(self.volSound)
 
 
             #revisar joistick
-            valEje_x = self.arduino.analogRead(self.PWM_X)
-            valEje_y = self.arduino.analogRead(self.PWM_Y)
+           
             #para x
-            if(valEje_x > 0.65):
+            if(keyboard.is_pressed('k')):    
                 stateX = 1
-            elif(valEje_x < 0.35):
+            elif(keyboard.is_pressed('h')):
                 stateX = -1
             else:
                 stateX = 0
             #para y
-            if(valEje_y > 0.65):
+            if(keyboard.is_pressed('u')):
                 stateY = 1
-            elif(valEje_y < 0.35):
+            elif(keyboard.is_pressed('j')):
                 stateY = -1
             else:
                 stateY = 0
 
             if(stateY != 0 and stateX != 0):
                 self.envControlMouse(stateX, stateY)
-            
-            #esperar 0.2 seg
+
+			#esperar 0.2 seg
             time.sleep(0.2)
-
-
+            
     def envDigitalToS(self, btn: int): #play sirve tanto para play como stop    
-        dicMensajes = {1:"<last>", 2:"<play>", 3:"<next>"}
+        dicMensajes = {0:"<last>", 1:"<play>", 2:"<next>"}
         self.server.send(bytes(dicMensajes[btn], "utf-8"))
 
     def envVolSound(self, sound:float):
