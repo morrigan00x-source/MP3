@@ -20,7 +20,7 @@ def clientthread(conn, addr):
                 print(f"<{addr[0]}> {message}")
                 
                 if(message.startswith("<mouseState>")):
-                    None
+                    msgToConsola(message)
                 elif(message.startswith("<last>")):
                     msgToConsola(message)
                 elif(message.startswith("<next>")):
