@@ -32,6 +32,11 @@ class arduinoContrl():
         self.arduino.pinMode(self.PWM_X, sc.INPUT)
         self.arduino.pinMode(self.PWM_Y, sc.INPUT)
 
+        self.volSound = 0.0
+        self.CacheVolSound = 0.0
+        self.stateX = 0
+        self.stateY = 0
+
         self.bLectura = True
 
     def lectura(self):
@@ -43,10 +48,10 @@ class arduinoContrl():
 
             #revisar pot volumen 
             volSound = self.arduino.analogRead(self.PW)
-            self.CacheVolSound = volSound
+            
             if(self.CacheVolSound != volSound):
                 self.envVolSound(volSound)
-
+            self.CacheVolSound = volSound
 
             #revisar joistick
             valEje_x = self.arduino.analogRead(self.PWM_X)

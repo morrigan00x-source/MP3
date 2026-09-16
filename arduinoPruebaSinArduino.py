@@ -19,10 +19,14 @@ class arduinoContrl():
 
     def __init__(self):
         #conexion server
-        self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server.connect("34.51.74.75", 80)#IP my server
-        self.server.send(bytes("<apodo> arduino", 'utf-8'))
-        
+        server.connect(("34.51.74.75", 65535))#IP my server 
+        server.send(bytes("<apodo> arduino", 'utf-8'))
+
+        self.volSound = 0.0
+        self.CacheVolSound = 0.0
+        self.stateX = 0
+        self.stateY = 0
+
         self.bLectura = True
 
     def lectura(self):
@@ -38,56 +42,71 @@ class arduinoContrl():
                         j = abajo mouse
                         k = derecha mouse
                         h = izquierda mouse 
+        
         """
         while self.bLectura:
             #revisar botones
             if(keyboard.is_pressed('a')):
                 self.envDigitalToS(0)
+                print("presionado a")
             elif(keyboard.is_pressed('s')):
                 self.envDigitalToS(1)
+                print("presionado s")
             elif(keyboard.is_pressed('d')):
+                print("presionado d")
                 self.envDigitalToS(2)
 
             #revisar pot volumen 
-            #volSound = self.arduino.analogRead(self.PW)
+            #volSound = self.arduino.analogRead(self.PW)a
             if(keyboard.is_pressed('f')):
-                self.volSound = self.volSound + 0.1
+                print("presionado f")
+                self.volSound = self.volSound + 0.01
 
+            if(keyboard.is_pressed('g')):
+                print("presionado g")
+                self.volSound = self.volSound - 0.01
 
-            self.envVolSound(self.volSound)
+            
+            
+            if(self.CacheVolSound != self.volSound):
+                self.envVolSound(self.volSound)
 
-
+            self.CacheVolSound = self.volSound
             #revisar joistick
            
             #para x
-            if(keyboard.is_pressed('k')):    
-                stateX = 1
-            elif(keyboard.is_pressed('h')):
-                stateX = -1
+            if(keyboard.is_pressed('k')):
+                print("presionado k")    
+                self.stateX = 1
+            elif(keyboard.is_pressed('h')):s
+                print("presionado h")
+                self.stateX = -1
             else:
-                stateX = 0
+                self.stateX = 0
             #para y
             if(keyboard.is_pressed('u')):
-                stateY = 1
+                print("presionado u")
+                self.stateY = 1
             elif(keyboard.is_pressed('j')):
-                stateY = -1
+                print("presionado j")
+                self.stateY = -1
             else:
-                stateY = 0
+                self.stateY = 0
 
-            if(stateY != 0 and stateX != 0):
-                self.envControlMouse(stateX, stateY)
+            if(self.stateY != 0 or self.stateX != 0):
+                self.envControlMouse(self.stateX, self.stateY)
 
-			#esperar 0.2 seg
-            time.sleep(0.2)
+			
+            time.sleep(0.1)
             
     def envDigitalToS(self, btn: int): #play sirve tanto para play como stop    
         dicMensajes = {0:"<last>", 1:"<play>", 2:"<next>"}
-        self.server.send(bytes(dicMensajes[btn], "utf-8"))
+        server.send(bytes(dicMensajes[btn], "utf-8"))
 
     def envVolSound(self, sound:float):
-        self.server.send(bytes(f"<s> {sound}", 'utf-8'))
+        server.send(bytes(f"<s> {sound}", 'utf-8'))
 
-    def envControlMouse(self, eje_X: int, eje_Y: int):
+    def envControlMouse(self, eje_X: 0, eje_Y: 0):
         """
         envControlMouse: envia valores: -1 para mov en ejes negativos
                                          0 para indicar sin mov en ese eje
@@ -96,11 +115,13 @@ class arduinoContrl():
         Args:
             eje_X (int): valor entre 1 y -1, indica aceleracion en el eje
             eje_Y (int): valor entre 1 y -1, indica aceleracion en el eje
+
         """
 
-        self.server.send(bytes(f"<mouseState> {eje_X} {eje_Y}"))
+        server.send(bytes(f"<mouseState> {eje_X} {eje_Y}", 'utf-8'))
 
 if __name__ == "__main__":
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     BUFFER_SIZE = 1024  # Usamos un número pequeño para tener una respuesta rápida
     arduino = arduinoContrl()
     threading.Thread(target=arduino.lectura).start()
